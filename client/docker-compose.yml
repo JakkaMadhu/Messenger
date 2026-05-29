@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  # Graphical Chat Client
+  client:
+    build: .
+    container_name: messenger-client
+    environment:
+      # Connect to the server via the host machine's port mapping
+      - IP_ADDRESS=host.docker.internal
+      - PORT_NUMBER=45999
+      # Route graphical window packets to X11 server on the host
+      - DISPLAY=host.docker.internal:0.0
+    extra_hosts:
+      # Maps host.docker.internal correctly inside containers on Linux as well
+      - "host.docker.internal:host-gateway"

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # Database Service
+  mongodb:
+    image: mongo:6.0
+    container_name: messenger-mongodb
+    ports:
+      - "27017:27017" # Exposes MongoDB port locally
+    volumes:
+      - mongo-data:/data/db # Persists database across container restarts
+    restart: always
+
+  # Backend TCP Socket Server
+  server:
+    build: .
+    container_name: messenger-server
+    ports:
+      - "45999:45999" # Map the server's TCP socket port to the host
+    env_file:
+      - .env # Load local environment credentials & configurations
+    environment:
+      # Override connection settings for virtual Docker network bridging
+      - IP_ADDRESS=0.0.0.0
+      - PORT_NUMBER=45999
+      - MONGODB_URI=mongodb://mongodb:27017/db_messenger
+    depends_on:
+      - mongodb
+    restart: always
+
+volumes:
+  mongo-data:
