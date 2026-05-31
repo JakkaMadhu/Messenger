@@ -3,3 +3,7 @@
 
 # Virtual environments
 .venv/
+
+# PyInstaller distribution and build outputs
+client/build/
+client/dist/

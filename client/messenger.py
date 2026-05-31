@@ -18,9 +18,38 @@ class App:
     sub-screens, and local state management.
     """
     def __init__(self):
+        # Windows taskbar grouping fix: tells Windows to display the custom icon on the taskbar.
+        # This MUST be called before initializing the Tk root window.
+        try:
+            import sys
+            if sys.platform == "win32":
+                import ctypes
+                myappid = "messenger.chat.client.1.0"
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        except Exception as e:
+            print(f"Could not set AppUserModelID: {e}")
+
         self.root = tkinter.Tk()
         self.root.title("Messenger")
         self.root.geometry("800x600")
+
+        # Set title bar window icon dynamically (from local file or bundled PyInstaller resources)
+        try:
+            import sys
+            import os
+            if getattr(sys, 'frozen', False):
+                icon_path = os.path.join(sys._MEIPASS, "icon.ico")
+            else:
+                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon.ico")
+
+            if os.path.exists(icon_path):
+                from PIL import Image, ImageTk
+                img = Image.open(icon_path)
+                photo = ImageTk.PhotoImage(img)
+                self.root.iconphoto(True, photo)
+                self.root._icon_image = photo  # Keep a reference to prevent garbage collection
+        except Exception as e:
+            print(f"Could not load window icon: {e}")
 
         self.bg_color = COLOR_BG
         self.bg_card = COLOR_CARD

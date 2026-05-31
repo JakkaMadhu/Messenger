@@ -2,20 +2,20 @@
 
 A premium, modular full-stack client-server chat application featuring a Tkinter-based dark theme, MongoDB persistence, secure email OTP validation, timezone-aware dynamic chat separators, and background sliding notifications.
 
-This repository contains both the client application and the backend socket server.
+This repository contains both the desktop client application and the backend socket server daemon.
 
 ---
 
 ## 🚀 Key Features
 
-* **Real-time Messaging**: Socket connection enabling direct private chats and broadcast routing.
-* **Modern Dark UI**: Segoe UI typography, sleek visual containers, inline password toggles, and customized focus layouts.
-* **OTP Verification**: Secure registration and password recovery validated by SMTP-dispatched OTP codes.
-* **Database Caching**: MongoDB database with compound index query optimizations and TTL (Time-to-Live) indexes for automated OTP code expiration.
+* **Real-time Messaging**: Multi-threaded socket communication enabling direct private chats and broadcast routing, handled in [client.py](file:///c:/Coding/projects/Messenger/client/client.py) and [server.py](file:///c:/Coding/projects/Messenger/server/server.py).
+* **Modern Dark UI**: Segoe UI typography, sleek visual containers, inline password toggles, and customized focus layouts located in [ui_screens.py](file:///c:/Coding/projects/Messenger/client/ui_screens.py).
+* **OTP Verification**: Secure registration and password recovery validated by SMTP-dispatched OTP codes, processed by [utils.py](file:///c:/Coding/projects/Messenger/server/utils.py) and [handlers.py](file:///c:/Coding/projects/Messenger/server/handlers.py).
+* **Database Caching**: MongoDB database with compound index query optimizations and TTL (Time-to-Live) indexes for automated OTP code expiration, configured in [database.py](file:///c:/Coding/projects/Messenger/server/database.py).
 * **Unread Notification Badges**: Sidebar badge updates displaying the number of unread messages per contact.
-* **Sliding Toast Alerts**: Smooth animation slide-downs notifying users of background incoming messages.
-* **Dynamic Timestamps**: Timezone-aware date separators (e.g. `Today`, `Yesterday`, `Month Day, Year`) inside scrollable bubbles.
-* **Highly Modular Design**: Code base cleanly partitioned using MVC (Model-View-Controller) structure.
+* **Sliding Toast Alerts**: Smooth animation slide-downs notifying users of background incoming messages, implemented in [toast.py](file:///c:/Coding/projects/Messenger/client/toast.py).
+* **Dynamic Timestamps**: Timezone-aware date separators (e.g. `Today`, `Yesterday`, `Month Day, Year`) inside scrollable bubbles, using helper functions in [utils.py](file:///c:/Coding/projects/Messenger/client/utils.py).
+* **Highly Modular Design**: Clean architecture separating configuration, networking, views, and controllers.
 
 ---
 
@@ -26,18 +26,17 @@ The application is structured using an **MVC (Model-View-Controller)** pattern o
 ```mermaid
 graph TD
     subgraph Client App [Client MVC Architecture]
-        M[messenger.py Controller] --> V[ui_screens.py Views]
-        M --> C[client.py Network Listener]
-        V --> F[Widget Factories]
-        M --> T[toast.py Notifications]
-        M --> U1[utils.py Formatting]
+        M["messenger.py (Controller)"] --> V["ui_screens.py (Views)"]
+        M --> C["client.py (Network Listener)"]
+        M --> T["toast.py (Notifications)"]
+        M --> U1["utils.py (Formatting)"]
     end
     
     subgraph Server Backend [Server daemon]
-        S[server.py Main Daemon] --> CM[client_manager.py Registry]
-        S --> H[handlers.py Request Router]
-        H --> DB[database.py MongoDB Connector]
-        H --> U2[utils.py SMTP Sender]
+        S["server.py (Main Daemon)"] --> CM["client_manager.py (Registry)"]
+        S --> H["handlers.py (Request Router)"]
+        H --> DB["database.py (MongoDB Wrapper)"]
+        H --> U2["utils.py (SMTP Dispatcher)"]
     end
     
     C <--> |TCP JSON Sockets| S
@@ -50,20 +49,22 @@ graph TD
 ```bash
 Messenger/
 ├── client/
-│   ├── .env.example       # Client environment settings
-│   ├── client.py          # Network socket listener thread
-│   ├── config.py          # Colors, fonts, and theme configs
-│   ├── messenger.py       # Main App controller (MVC Coordinator)
-│   ├── requirements.txt   # Client package dependencies
-│   ├── toast.py           # Slide-in toast notification animation
-│   ├── ui_screens.py      # Login, Register, Forgot, and Dashboard UI
-│   └── utils.py           # Datetime parsing and formatting
+│   ├── .env.example       # Example client environment variables
+│   ├── client.py          # Network socket listener thread class (Client)
+│   ├── config.py          # Colors, fonts, and dynamic path load configurations
+│   ├── icon.ico           # Application window & binary file icon
+│   ├── messenger.py       # Main App controller class (App)
+│   ├── messenger.spec     # PyInstaller compilation specification file
+│   ├── requirements.txt   # Client package dependencies (dotenv, pillow)
+│   ├── toast.py           # Slide-in toast notification animation class (ToastNotification)
+│   ├── ui_screens.py      # Tkinter views (LoginScreen, RegistrationScreen, etc.)
+│   └── utils.py           # Datetime parsing and formatting utility functions
 ├── server/
-│   ├── .env.example       # Server environment settings
-│   ├── client_manager.py  # Thread-safe socket registry manager
+│   ├── .env.example       # Example server environment variables
+│   ├── client_manager.py  # Thread-safe socket registry manager class (ClientManager)
 │   ├── config.py          # Port configs and MongoDB URI
-│   ├── database.py        # MongoDB connection and queries wrapper
-│   ├── handlers.py        # Client actions request controller
+│   ├── database.py        # MongoDB database connections and queries wrapper class (Database)
+│   ├── handlers.py        # Client actions request router (handle_client)
 │   ├── requirements.txt   # Server package dependencies
 │   ├── server.py          # Main TCP socket port listener
 │   └── utils.py           # Email verification and SMTP dispatcher
@@ -75,7 +76,7 @@ Messenger/
 ## 📥 Setup & Installation
 
 ### 1. Prerequisites
-* **Python 3.8+** installed on your machine.
+* **Python 3.8+** installed on your system.
 * **MongoDB Server** installed and running locally or in the cloud.
 
 ### 2. Setting Up Virtual Environments & Dependencies
@@ -142,6 +143,9 @@ PORT_NUMBER="45999"
 MONGODB_URI="mongodb://username:password@127.0.0.1:27017/db_messenger?authSource=db_messenger"
 ```
 
+> [!WARNING]
+> Never commit actual `.env` files containing your SMTP credentials or database passwords to public repositories.
+
 ### Client Environment (`client/.env`)
 ```ini
 # Address and port of the active chat server
@@ -155,7 +159,7 @@ PORT_NUMBER=45999
 
 ### Option A: Standard Manual Running
 
-1. **Start MongoDB**: Ensure that your MongoDB instance is active.
+1. **Start MongoDB**: Ensure your local MongoDB instance is active.
 2. **Start the Server**:
    Navigate to the `server/` directory, activate the virtual environment, and run:
    ```bash
@@ -166,13 +170,13 @@ PORT_NUMBER=45999
    ```bash
    python messenger.py
    ```
-   *(You can launch multiple client terminals to test messaging).*
+   *(You can launch multiple client instances to test messaging between different accounts).*
 
 ---
 
 ### Option B: Docker Compose (Server & Database Stack)
 
-You can launch the entire server infrastructure (MongoDB and the TCP Chat Server) headlessly in isolated containers:
+You can launch the entire server infrastructure (MongoDB database and the TCP Chat Server) headlessly in isolated containers:
 
 1. **Navigate to server directory**:
    ```bash
@@ -194,7 +198,7 @@ You can launch the entire server infrastructure (MongoDB and the TCP Chat Server
 
 ### Option C: Docker Compose (GUI Client Container)
 
-To run the Tkinter GUI client inside a Docker container (separately from the server stack), you must configure display forwarding to your host:
+To run the Tkinter GUI client inside a Docker container (separately from the server stack), you must configure display forwarding to your host display system:
 
 #### 1. Install & Configure X-server on Host (Windows):
 1. Download and install [VcXsrv (Windows X Server)](https://sourceforge.net/projects/vcxsrv/).
@@ -229,18 +233,39 @@ docker-compose down
 
 ---
 
-## 📦 Packaging the Client (Optional)
+## 📦 Packaging the Client
+
 If you want to package the client into a standalone executable (e.g. `.exe` on Windows):
 
-1. Activate your client virtual environment and install PyInstaller:
+1. **Activate the client virtual environment & install packaging dependencies:**
    ```bash
-   pip install pyinstaller
+   cd client
+   # Activate your virtual environment (.venv)
+   pip install pyinstaller pillow
    ```
-2. Build the executable:
+   > [!TIP]
+   > Installing `pillow` allows PyInstaller to automatically convert custom PNG or JPEG images to the correct Windows icon format during compile time.
+
+2. **Add an Icon:**
+   Place your custom icon file named `icon.ico` directly inside the `client/` folder.
+
+3. **Build the executable:**
+   Run the build command using PyInstaller:
    ```bash
-   pyinstaller --onefile --noconsole --name "Messenger" messenger.py
+   pyinstaller --onefile --noconsole --icon="icon.ico" --name "Messenger" messenger.py
    ```
-3. Find your standalone executable in the newly created `dist/` directory.
+
+4. **Dynamic Configuration (`.env` file):**
+   * PyInstaller outputs the final executable inside the `client/dist/` directory.
+   * > [!IMPORTANT]
+     > Copy your `.env` configuration file from the `client/` folder and paste it **directly next to `Messenger.exe`** inside the `dist/` directory.
+     > The executable dynamically loads settings (like `IP_ADDRESS` and `PORT_NUMBER`) from the `.env` file in its current runtime folder.
+
+5. **Future Rebuilds:**
+   Once generated, you can rebuild the executable with the exact same configuration using the spec file:
+   ```bash
+   pyinstaller messenger.spec
+   ```
 
 ---
 

@@ -1,7 +1,17 @@
 import os
+import sys
 from dotenv import load_dotenv
 
-load_dotenv()
+# Dynamically locate the .env file path
+if getattr(sys, 'frozen', False):
+    # App is running as a packaged executable (.exe)
+    base_dir = os.path.dirname(sys.executable)
+else:
+    # App is running in python interpreter (development)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+dotenv_path = os.path.join(base_dir, '.env')
+load_dotenv(dotenv_path)
 
 # Server Connection settings
 DEFAULT_HOST = os.environ.get("IP_ADDRESS", "192.168.1.34")
