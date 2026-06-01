@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import bcrypt
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
-from config import MONGODB_URI
+from config import MONGODB_URI, MONGODB_DB_NAME
 
 class Database:
     """
@@ -13,7 +13,7 @@ class Database:
         self.lock = threading.Lock()
         # Initialize connection using URI from config.py
         self.client = MongoClient(MONGODB_URI)
-        self.db = self.client.get_default_database("db_messenger")
+        self.db = self.client[MONGODB_DB_NAME]
         
         # Collection references
         self.users = self.db["users"]

@@ -139,9 +139,18 @@ EMAIL_PASSWORD="your_four_word_app_password"
 IP_ADDRESS="127.0.0.1"
 PORT_NUMBER="45999"
 
-# MongoDB connection string
-MONGODB_URI="mongodb://username:password@127.0.0.1:27017/db_messenger?authSource=db_messenger"
+# MongoDB Database Connection Configuration
+# Option A (Recommended): Granular config variables (passwords URL-encoded automatically)
+MONGODB_USER="username"
+MONGODB_PASSWORD="your_raw_password"
+MONGODB_HOST="cluster.mongodb.net"
+MONGODB_DB_NAME="db_messenger"
+MONGODB_APP_NAME="Messenger"
+
+# Option B: Single MongoDB connection URI fallback
+# MONGODB_URI="mongodb://username:password@127.0.0.1:27017/db_messenger?authSource=db_messenger"
 ```
+
 
 > [!WARNING]
 > Never commit actual `.env` files containing your SMTP credentials or database passwords to public repositories.
