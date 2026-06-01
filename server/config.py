@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-IP_ADDRESS = os.environ.get("IP_ADDRESS", "localhost")
-PORT_NUMBER = int(os.environ.get("PORT_NUMBER", 45999))
+IP_ADDRESS = os.environ.get("IP_ADDRESS", "0.0.0.0")
+PORT_NUMBER = int(os.environ.get("PORT", os.environ.get("PORT_NUMBER", 45999)))
 EMAIL_NAME = os.environ.get("EMAIL_NAME")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 import urllib.parse

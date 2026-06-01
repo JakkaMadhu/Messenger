@@ -242,6 +242,37 @@ docker-compose down
 
 ---
 
+## 🌐 Cloud Deployment (Railway.app)
+
+To share this app as a live working model with interviewers, you can host the TCP Socket Server in the cloud using **Railway** (which supports raw TCP port exposure).
+
+### 1. Deploy the Server
+1. Sign up/log in to [Railway.app](https://railway.app/).
+2. Create a **New Project** -> **Deploy from GitHub repo** -> Select your `Messenger` repository.
+3. In the Railway service settings for the server:
+   * **Build/Start Command**: Ensure it starts `server/server.py` (since it contains the `Dockerfile` under the `server` folder, Railway will build and run it automatically).
+   * **TCP Port**: Under your service's settings page, add a new **TCP Port** mapping. Railway will expose a public host (e.g. `xxx.railway.app`) and a random public port (e.g. `12345`).
+   * **Environment Variables**: Add your production credentials (do not hardcode these in code):
+     * `MONGODB_USER`
+     * `MONGODB_PASSWORD`
+     * `MONGODB_HOST`
+     * `MONGODB_DB_NAME`
+     * `MONGODB_APP_NAME`
+     * `EMAIL_NAME` (For OTP verification emails)
+     * `EMAIL_PASSWORD` (Gmail SMTP App Password)
+
+### 2. Connect the Client to the Cloud Server
+Once your server is running on Railway:
+1. Copy the public TCP host and port assigned by Railway (e.g., Host: `xxxx.railway.app`, Port: `12345`).
+2. Update your client's `.env` file (`client/.env` and `client/dist/.env`):
+   ```ini
+   IP_ADDRESS=xxxx.railway.app
+   PORT_NUMBER=12345
+   ```
+3. Run the compiled client executable. It will connect to your hosted server over the internet!
+
+---
+
 ## 📦 Packaging the Client
 
 If you want to package the client into a standalone executable (e.g. `.exe` on Windows):

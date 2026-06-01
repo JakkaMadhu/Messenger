@@ -23,7 +23,7 @@ def main():
                 args=(client_socket,), 
                 daemon=True
             ).start()
-            
+
     except KeyboardInterrupt:
         print("Server shutting down...")
     except Exception as e:
