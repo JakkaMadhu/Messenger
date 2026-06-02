@@ -6,6 +6,20 @@ This repository contains both the desktop client application and the backend soc
 
 ---
 
+## 🚀 Live Demo (Run instantly in 1-Click)
+
+Skip the local configuration! You can run and test the application immediately on Windows:
+
+1. 📥 **[Download the pre-packaged Live Demo (.zip)](https://github.com/JakkaMadhu/Messenger/releases/latest/download/Messenger-Demo.zip)**
+2. 📂 **Extract** the downloaded `.zip` archive.
+3. ⚡ Double-click **`messenger.exe`** to start chatting!
+
+> [!NOTE]
+> The executable is pre-configured via the included `.env` file to connect to our live socket server hosted 24/7 on Railway (`zephyr.proxy.rlwy.net:28364`). You can launch multiple instances of the app to test real-time chat between accounts.
+
+
+---
+
 ## 🚀 Key Features
 
 * **Real-time Messaging**: Multi-threaded socket communication enabling direct private chats and broadcast routing, handled in [client.py](file:///c:/Coding/projects/Messenger/client/client.py) and [server.py](file:///c:/Coding/projects/Messenger/server/server.py).
@@ -131,9 +145,8 @@ Create a `.env` file in both `client/` and `server/` directories based on the pr
 
 ### Server Environment (`server/.env`)
 ```ini
-# SMTP configuration (Gmail App Password)
-EMAIL_NAME="your_smtp_gmail@gmail.com"
-EMAIL_PASSWORD="your_four_word_app_password"
+# Transactional Email configuration (Resend API Key)
+RESEND_API_KEY="re_your_resend_api_key"
 
 # Port and address bindings
 IP_ADDRESS="127.0.0.1"
@@ -258,8 +271,7 @@ To share this app as a live working model with interviewers, you can host the TC
      * `MONGODB_HOST`
      * `MONGODB_DB_NAME`
      * `MONGODB_APP_NAME`
-     * `EMAIL_NAME` (For OTP verification emails)
-     * `EMAIL_PASSWORD` (Gmail SMTP App Password)
+     * `RESEND_API_KEY` (For OTP verification emails via Resend API)
 
 ### 2. Connect the Client to the Cloud Server
 Once your server is running on Railway:

@@ -1,8 +1,10 @@
 import re
 import socket
-import smtplib
-from email.mime.text import MIMEText
-from config import EMAIL_NAME, EMAIL_PASSWORD
+import resend
+from config import RESEND_API_KEY
+
+# Configure the Resend SDK key
+resend.api_key = RESEND_API_KEY
 
 def validate_email(email):
     """
@@ -21,24 +23,24 @@ def validate_email(email):
 
 def send_otp_email(to_email, otp, subject, body_template):
     """
-    Generic SMTP email sender. Consolidates both password reset and registration
-    OTP sending logic to eliminate duplicate SMTP setup code.
+    Sends OTP email using the Resend SDK.
     """
-    if not EMAIL_NAME or not EMAIL_PASSWORD:
-        print("[WARNING] SMTP credentials missing in environment.")
+    if not RESEND_API_KEY:
+        print("[WARNING] RESEND_API_KEY is missing in environment.")
         return False
         
+    body_content = body_template.format(otp=otp)
+    print(f"Attempting to send email via Resend SDK to {to_email}...")
     try:
-        body_content = body_template.format(otp=otp)
-        message = MIMEText(body_content)
-        message['Subject'] = subject
-        message['From'] = EMAIL_NAME
-        message['To'] = to_email
-        
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=5.0) as smtp:
-            smtp.login(EMAIL_NAME, EMAIL_PASSWORD)
-            smtp.send_message(message)
+        # Send transactional email using the official Resend Python SDK
+        r = resend.Emails.send({
+            "from": "Messenger <onboarding@resend.dev>",
+            "to": to_email,
+            "subject": subject,
+            "html": f"<p>{body_content}</p>"
+        })
+        print(f"Resend email sent successfully: {r}")
         return True
     except Exception as e:
-        print(f"Failed to send SMTP email to {to_email}: {e}")
+        print(f"Failed to send email via Resend to {to_email}: {e}")
         return False
