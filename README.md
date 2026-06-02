@@ -1,35 +1,39 @@
 # 📢 Messenger — Real-Time Chat Application
 
-A premium, modular full-stack client-server chat application featuring a Tkinter-based dark theme, MongoDB persistence, secure email OTP validation, timezone-aware dynamic chat separators, and background sliding notifications.
+[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Database](https://img.shields.io/badge/Database-MongoDB%20Atlas-green?logo=mongodb&logoColor=white)](https://www.mongodb.com/cloud/atlas)
+[![Host](https://img.shields.io/badge/Hosting-Railway-black?logo=railway&logoColor=white)](https://railway.app/)
+[![Email Service](https://img.shields.io/badge/Email-Resend%20SDK-purple)](https://resend.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A premium, modular full-stack client-server chat application featuring a Tkinter-based dark theme, MongoDB persistence, secure email OTP validation, timezone-aware dynamic chat separators, and background sliding notifications. 
 
 This repository contains both the desktop client application and the backend socket server daemon.
 
 ---
 
-## 🚀 Live Demo (Run instantly in 1-Click)
+## 🚀 Live Demo (Single-Click Executable)
 
 Skip the local configuration! You can run and test the application immediately on Windows:
 
-1. 📥 **[Download the pre-packaged Live Demo (.zip)](https://github.com/JakkaMadhu/Messenger/releases/latest/download/Messenger-Demo.zip)**
-2. 📂 **Extract** the downloaded `.zip` archive.
-3. ⚡ Double-click **`messenger.exe`** to start chatting!
+1. 📥 **[Download the Standalone Executable (messenger.exe)](https://github.com/JakkaMadhu/Messenger/releases/latest/download/messenger.exe)**
+2. ⚡ Double-click **`messenger.exe`** to start chatting!
 
 > [!NOTE]
-> The executable is pre-configured via the included `.env` file to connect to our live socket server hosted 24/7 on Railway (`zephyr.proxy.rlwy.net:28364`). You can launch multiple instances of the app to test real-time chat between accounts.
-
+> The executable is pre-configured to automatically default to our live socket server hosted 24/7 on Railway (`zephyr.proxy.rlwy.net:28364`). You can launch multiple instances of the executable to test real-time chat between different accounts. No local configuration or `.env` files are required!
 
 ---
 
-## 🚀 Key Features
+## ✨ Key Features
 
-* **Real-time Messaging**: Multi-threaded socket communication enabling direct private chats and broadcast routing, handled in [client.py](file:///c:/Coding/projects/Messenger/client/client.py) and [server.py](file:///c:/Coding/projects/Messenger/server/server.py).
-* **Modern Dark UI**: Segoe UI typography, sleek visual containers, inline password toggles, and customized focus layouts located in [ui_screens.py](file:///c:/Coding/projects/Messenger/client/ui_screens.py).
-* **OTP Verification**: Secure registration and password recovery validated by SMTP-dispatched OTP codes, processed by [utils.py](file:///c:/Coding/projects/Messenger/server/utils.py) and [handlers.py](file:///c:/Coding/projects/Messenger/server/handlers.py).
+* **Real-time Messaging**: Multi-threaded TCP socket communication enabling direct private chats and broadcast routing, handled in [client.py](file:///c:/Coding/projects/Messenger/client/client.py) and [server.py](file:///c:/Coding/projects/Messenger/server/server.py).
+* **Modern Dark UI**: Elegant dark mode palette, Segoe UI typography, custom styled input fields, inline password visibility toggles, and customized focus layouts located in [ui_screens.py](file:///c:/Coding/projects/Messenger/client/ui_screens.py).
+* **Resend API Integration**: Lightning-fast registration and password recovery validated by OTP codes dispatched over HTTPS using the official **Resend SDK** in [utils.py](file:///c:/Coding/projects/Messenger/server/utils.py). This bypasses traditional SMTP blocking issues on cloud platforms.
 * **Database Caching**: MongoDB database with compound index query optimizations and TTL (Time-to-Live) indexes for automated OTP code expiration, configured in [database.py](file:///c:/Coding/projects/Messenger/server/database.py).
 * **Unread Notification Badges**: Sidebar badge updates displaying the number of unread messages per contact.
 * **Sliding Toast Alerts**: Smooth animation slide-downs notifying users of background incoming messages, implemented in [toast.py](file:///c:/Coding/projects/Messenger/client/toast.py).
 * **Dynamic Timestamps**: Timezone-aware date separators (e.g. `Today`, `Yesterday`, `Month Day, Year`) inside scrollable bubbles, using helper functions in [utils.py](file:///c:/Coding/projects/Messenger/client/utils.py).
-* **Highly Modular Design**: Clean architecture separating configuration, networking, views, and controllers.
+* **Professional Logging**: Replaced print statements with standard Python `logging` to stream structured logs directly to console output. This integrates perfectly with cloud dashboard monitoring (e.g., Railway logs).
 
 ---
 
@@ -50,7 +54,7 @@ graph TD
         S["server.py (Main Daemon)"] --> CM["client_manager.py (Registry)"]
         S --> H["handlers.py (Request Router)"]
         H --> DB["database.py (MongoDB Wrapper)"]
-        H --> U2["utils.py (SMTP Dispatcher)"]
+        H --> U2["utils.py (Resend SDK Dispatcher)"]
     end
     
     C <--> |TCP JSON Sockets| S
@@ -65,7 +69,7 @@ Messenger/
 ├── client/
 │   ├── .env.example       # Example client environment variables
 │   ├── client.py          # Network socket listener thread class (Client)
-│   ├── config.py          # Colors, fonts, and dynamic path load configurations
+│   ├── config.py          # Colors, fonts, and default server connection settings
 │   ├── icon.ico           # Application window & binary file icon
 │   ├── messenger.py       # Main App controller class (App)
 │   ├── messenger.spec     # PyInstaller compilation specification file
@@ -79,15 +83,17 @@ Messenger/
 │   ├── config.py          # Port configs and MongoDB URI
 │   ├── database.py        # MongoDB database connections and queries wrapper class (Database)
 │   ├── handlers.py        # Client actions request router (handle_client)
-│   ├── requirements.txt   # Server package dependencies
+│   ├── requirements.txt   # Server package dependencies (resend, pymongo, python-dotenv)
 │   ├── server.py          # Main TCP socket port listener
-│   └── utils.py           # Email verification and SMTP dispatcher
+│   └── utils.py           # Email verification and Resend SDK dispatcher
 └── .gitignore             # Git exclusion rules
 ```
 
 ---
 
 ## 📥 Setup & Installation
+
+If you prefer to run the codebase locally rather than using the pre-compiled `.exe` file:
 
 ### 1. Prerequisites
 * **Python 3.8+** installed on your system.
@@ -149,7 +155,7 @@ Create a `.env` file in both `client/` and `server/` directories based on the pr
 RESEND_API_KEY="re_your_resend_api_key"
 
 # Port and address bindings
-IP_ADDRESS="127.0.0.1"
+IP_ADDRESS="0.0.0.0"
 PORT_NUMBER="45999"
 
 # MongoDB Database Connection Configuration
@@ -164,15 +170,14 @@ MONGODB_APP_NAME="Messenger"
 # MONGODB_URI="mongodb://username:password@127.0.0.1:27017/db_messenger?authSource=db_messenger"
 ```
 
-
 > [!WARNING]
-> Never commit actual `.env` files containing your SMTP credentials or database passwords to public repositories.
+> Never commit actual `.env` files containing your API keys or database passwords to public repositories.
 
-### Client Environment (`client/.env`)
+### Client Environment (`client/.env` - Optional)
 ```ini
-# Address and port of the active chat server
-IP_ADDRESS=127.0.0.1
-PORT_NUMBER=45999
+# Address and port of the active chat server (defaults to production if omitted)
+IP_ADDRESS=zephyr.proxy.rlwy.net
+PORT_NUMBER=28364
 ```
 
 ---
@@ -181,7 +186,7 @@ PORT_NUMBER=45999
 
 ### Option A: Standard Manual Running
 
-1. **Start MongoDB**: Ensure your local MongoDB instance is active.
+1. **Start MongoDB**: Ensure your local or cloud MongoDB instance is active.
 2. **Start the Server**:
    Navigate to the `server/` directory, activate the virtual environment, and run:
    ```bash
@@ -204,7 +209,7 @@ You can launch the entire server infrastructure (MongoDB database and the TCP Ch
    ```bash
    cd server
    ```
-2. **Configure Environment**: Ensure your `server/.env` is configured with your SMTP email and password credentials.
+2. **Configure Environment**: Ensure your `server/.env` is configured with your database and email credentials.
 3. **Launch Stack**: From the `server/` directory, run:
    ```bash
    docker-compose up --build -d
@@ -257,67 +262,43 @@ docker-compose down
 
 ## 🌐 Cloud Deployment (Railway.app)
 
-To share this app as a live working model with interviewers, you can host the TCP Socket Server in the cloud using **Railway** (which supports raw TCP port exposure).
+The TCP Socket Server is designed to host on **Railway** (which supports raw TCP port exposure).
 
 ### 1. Deploy the Server
 1. Sign up/log in to [Railway.app](https://railway.app/).
 2. Create a **New Project** -> **Deploy from GitHub repo** -> Select your `Messenger` repository.
 3. In the Railway service settings for the server:
-   * **Build/Start Command**: Ensure it starts `server/server.py` (since it contains the `Dockerfile` under the `server` folder, Railway will build and run it automatically).
-   * **TCP Port**: Under your service's settings page, add a new **TCP Port** mapping. Railway will expose a public host (e.g. `xxx.railway.app`) and a random public port (e.g. `12345`).
-   * **Environment Variables**: Add your production credentials (do not hardcode these in code):
+   * **Build/Start Command**: Railway will use the `Dockerfile` inside the `server` directory to build and run the daemon automatically.
+   * **TCP Port**: Under your service's settings page, add a new **TCP Port** mapping. Railway will expose a public host (e.g. `zephyr.proxy.rlwy.net`) and a public port (e.g. `28364`).
+   * **Environment Variables**: Add your production credentials:
      * `MONGODB_USER`
      * `MONGODB_PASSWORD`
      * `MONGODB_HOST`
      * `MONGODB_DB_NAME`
      * `MONGODB_APP_NAME`
-     * `RESEND_API_KEY` (For OTP verification emails via Resend API)
+     * `RESEND_API_KEY` (For OTP verification emails)
 
-### 2. Connect the Client to the Cloud Server
-Once your server is running on Railway:
-1. Copy the public TCP host and port assigned by Railway (e.g., Host: `xxxx.railway.app`, Port: `12345`).
-2. Update your client's `.env` file (`client/.env` and `client/dist/.env`):
-   ```ini
-   IP_ADDRESS=xxxx.railway.app
-   PORT_NUMBER=12345
-   ```
-3. Run the compiled client executable. It will connect to your hosted server over the internet!
+### 2. Live Logs
+Because the server utilizes standard console logging (`StreamHandler`), you can view structured real-time activity and errors by going to the **Logs** tab of your service in the Railway dashboard.
 
 ---
 
-## 📦 Packaging the Client
+## 📦 Packaging the Client (PyInstaller)
 
-If you want to package the client into a standalone executable (e.g. `.exe` on Windows):
+If you modify the client code and want to recompile the standalone single-file executable:
 
 1. **Activate the client virtual environment & install packaging dependencies:**
    ```bash
    cd client
    # Activate your virtual environment (.venv)
-   pip install pyinstaller pillow
+   pip install pyinstaller pillow python-dotenv
    ```
-   > [!TIP]
-   > Installing `pillow` allows PyInstaller to automatically convert custom PNG or JPEG images to the correct Windows icon format during compile time.
 
-2. **Add an Icon:**
-   Place your custom icon file named `icon.ico` directly inside the `client/` folder.
-
-3. **Build the executable:**
-   Run the build command using PyInstaller:
+2. **Rebuild the executable using the spec file:**
    ```bash
-   pyinstaller --onefile --noconsole --icon="icon.ico" --name "Messenger" messenger.py
+   pyinstaller --clean messenger.spec
    ```
-
-4. **Dynamic Configuration (`.env` file):**
-   * PyInstaller outputs the final executable inside the `client/dist/` directory.
-   * > [!IMPORTANT]
-     > Copy your `.env` configuration file from the `client/` folder and paste it **directly next to `Messenger.exe`** inside the `dist/` directory.
-     > The executable dynamically loads settings (like `IP_ADDRESS` and `PORT_NUMBER`) from the `.env` file in its current runtime folder.
-
-5. **Future Rebuilds:**
-   Once generated, you can rebuild the executable with the exact same configuration using the spec file:
-   ```bash
-   pyinstaller messenger.spec
-   ```
+   *PyInstaller will read the `messenger.spec` configuration to compile all Python modules, resource files (like the custom `icon.ico` layout), and compile everything into a single standalone executable at `client/dist/messenger.exe`.*
 
 ---
 
