@@ -1,9 +1,12 @@
 import threading
+import logging
 from datetime import datetime, timedelta
 import bcrypt
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 from config import MONGODB_URI, MONGODB_DB_NAME
+
+logger = logging.getLogger(__name__)
 
 class Database:
     """
@@ -115,7 +118,7 @@ class Database:
             )
             return True
         except Exception as e:
-            print(f"Error saving OTP for {email_normalized}: {e}")
+            logger.exception(f"Error saving OTP for {email_normalized}: {e}")
             return False
 
     def verify_otp(self, email, otp):

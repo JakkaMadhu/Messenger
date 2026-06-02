@@ -1,7 +1,16 @@
 import socket
 import threading
+import logging
 from config import IP_ADDRESS, PORT_NUMBER
 from handlers import handle_client
+
+# Configure root logger to output formatted logs to stdout
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] [%(name)s:%(lineno)d] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger(__name__)
 
 def main():
     """
@@ -13,7 +22,7 @@ def main():
     try:
         server_socket.bind((IP_ADDRESS, PORT_NUMBER))
         server_socket.listen()
-        print(f"Server started at {IP_ADDRESS}:{PORT_NUMBER}")
+        logger.info(f"Server started at {IP_ADDRESS}:{PORT_NUMBER}")
         
         while True:
             client_socket, _ = server_socket.accept()
@@ -25,9 +34,9 @@ def main():
             ).start()
 
     except KeyboardInterrupt:
-        print("Server shutting down...")
+        logger.info("Server shutting down...")
     except Exception as e:
-        print(f"Server error: {e}")
+        logger.exception(f"Server encountered a fatal error: {e}")
     finally:
         server_socket.close()
 

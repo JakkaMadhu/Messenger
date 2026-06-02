@@ -1,7 +1,10 @@
 import re
 import socket
+import logging
 import resend
 from config import RESEND_API_KEY
+
+logger = logging.getLogger(__name__)
 
 # Configure the Resend SDK key
 resend.api_key = RESEND_API_KEY
@@ -26,11 +29,11 @@ def send_otp_email(to_email, otp, subject, body_template):
     Sends OTP email using the Resend SDK.
     """
     if not RESEND_API_KEY:
-        print("[WARNING] RESEND_API_KEY is missing in environment.")
+        logger.warning("RESEND_API_KEY is missing in environment.")
         return False
         
     body_content = body_template.format(otp=otp)
-    print(f"Attempting to send email via Resend SDK to {to_email}...")
+    logger.info(f"Attempting to send email via Resend SDK to {to_email}...")
     try:
         # Send transactional email using the official Resend Python SDK
         r = resend.Emails.send({
@@ -39,8 +42,8 @@ def send_otp_email(to_email, otp, subject, body_template):
             "subject": subject,
             "html": f"<p>{body_content}</p>"
         })
-        print(f"Resend email sent successfully: {r}")
+        logger.info(f"Email sent successfully to {to_email}.")
         return True
     except Exception as e:
-        print(f"Failed to send email via Resend to {to_email}: {e}")
+        logger.error(f"Failed to send email via Resend to {to_email}: {e}")
         return False

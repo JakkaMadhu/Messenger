@@ -1,9 +1,12 @@
 import json
 import secrets
+import logging
 from datetime import datetime
 from database import Database
 from client_manager import ClientManager, send_json
 import utils
+
+logger = logging.getLogger(__name__)
 
 # Shared database and client manager instances
 db = Database()
@@ -26,7 +29,7 @@ def deliver_pending_messages(email, client_socket):
         if pending_messages:
             db.mark_message_as_delivered(email)
     except Exception as e:
-        print(f"Error delivering pending messages to {email}: {e}")
+        logger.exception(f"Error delivering pending messages to {email}: {e}")
 
 def handle_registration(client_socket, payload):
     """
@@ -94,19 +97,17 @@ def handle_forgot_password(client_socket, payload):
         return
         
     otp = f"{secrets.randbelow(1000000):06d}"
-    print(f"\n[DEV/SMTP FALLBACK] Password Reset OTP for {email}: {otp}\n")
-    
     if db.save_otp(email, otp):
         subject = "Password Reset OTP"
         body_template = "Your password reset OTP is {otp}"
         if utils.send_otp_email(email, otp, subject, body_template):
             send_json(client_socket, {'status': 'ok', 'action': 'forgot_password', 'message': 'OTP sent'})
         else:
-            print(f"[WARNING] SMTP failed. OTP printed to server console.")
+            logger.warning(f"Email delivery failed. Fallback OTP for {email}: {otp}")
             send_json(client_socket, {
                 'status': 'ok', 
                 'action': 'forgot_password', 
-                'message': 'Email failed. OTP printed to server console.'
+                'message': 'Email delivery failed. Fallback OTP generated.'
             })
     else:
         send_json(client_socket, {'status': 'error', 'action': 'forgot_password', 'message': 'Failed to generate OTP'})
@@ -149,19 +150,17 @@ def handle_register_send_otp(client_socket, payload):
         return
 
     otp = f"{secrets.randbelow(1000000):06d}"
-    print(f"\n[DEV/SMTP FALLBACK] Account Registration OTP for {email}: {otp}\n")
-    
     if db.save_otp(email, otp):
         subject = "Account Registration OTP"
         body_template = "Your account registration OTP is {otp}"
         if utils.send_otp_email(email, otp, subject, body_template):
             send_json(client_socket, {'status': 'ok', 'action': 'register_send_otp', 'message': 'OTP sent successfully.'})
         else:
-            print(f"[WARNING] SMTP failed. OTP printed to server console.")
+            logger.warning(f"Email delivery failed. Fallback OTP for {email}: {otp}")
             send_json(client_socket, {
                 'status': 'ok', 
                 'action': 'register_send_otp', 
-                'message': 'Email failed. OTP printed to server console.'
+                'message': 'Email delivery failed. Fallback OTP generated.'
             })
     else:
         send_json(client_socket, {'status': 'error', 'action': 'register_send_otp', 'message': 'Failed to generate OTP.'})
@@ -202,7 +201,7 @@ def route_message(sender_email, payload):
             })
             db.mark_message_as_delivered(recipient_email)
         except Exception as e:
-            print(f"Error routing message to {recipient_email}: {e}")
+            logger.exception(f"Error routing message to {recipient_email}: {e}")
 
 def handle_broadcast(sender_email, payload):
     """
@@ -221,7 +220,7 @@ def handle_broadcast(sender_email, payload):
         try:
             send_json(client_socket, broadcast_data)
         except Exception as e:
-            print(f"Error sending broadcast from {sender_email}: {e}")
+            logger.exception(f"Error sending broadcast from {sender_email}: {e}")
 
 def handle_client(client_socket):
     """
@@ -293,12 +292,12 @@ def handle_client(client_socket):
                 send_json(client_socket, {'status': 'error', 'message': "Unknown action"})
 
     except Exception as e:
-        print(f"Error managing client connection for {email}: {e}")
+        logger.exception(f"Error managing client connection for {email}: {e}")
     finally:
         if email:
             client_manager.remove_client(email, client_socket)
         else:
-            print("[SERVER] Unauthenticated client disconnected.")
+            logger.info("Unauthenticated client disconnected.")
         try:
             client_socket.close()
         except:

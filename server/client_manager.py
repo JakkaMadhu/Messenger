@@ -1,5 +1,8 @@
 import json
 import threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 def send_json(client_socket, data):
     """
@@ -9,7 +12,7 @@ def send_json(client_socket, data):
         raw_data = json.dumps(data) + '\n'
         client_socket.sendall(raw_data.encode('utf-8'))
     except Exception as e:
-        print(f"Error sending JSON data: {e}")
+        logger.error(f"Error sending JSON data: {e}")
 
 class ClientManager:
     """
@@ -22,7 +25,7 @@ class ClientManager:
     def add_client(self, email, client_socket, name):
         with self._lock:
             self._clients[email.lower()] = {"socket": client_socket, "name": name}
-        print(f"[SERVER] User logged in: {email}")
+        logger.info(f"User logged in: {email}")
         self.broadcast_online_users()
 
     def remove_client(self, email, client_socket):
@@ -30,10 +33,10 @@ class ClientManager:
             email_lower = email.lower()
             if email_lower in self._clients and self._clients[email_lower]["socket"] == client_socket:
                 self._clients.pop(email_lower, None)
-                print(f"[SERVER] User logged out/disconnected: {email}")
+                logger.info(f"User logged out/disconnected: {email}")
                 self.broadcast_online_users()
             else:
-                print(f"[SERVER] Disconnect cleanup ignored for {email} (socket was replaced).")
+                logger.info(f"Disconnect cleanup ignored for {email} (socket was replaced).")
 
     def get_receiver_socket(self, email):
         with self._lock:
