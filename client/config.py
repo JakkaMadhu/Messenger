@@ -14,8 +14,8 @@ dotenv_path = os.path.join(base_dir, '.env')
 load_dotenv(dotenv_path)
 
 # Server Connection settings
-DEFAULT_HOST = os.environ.get("IP_ADDRESS", "192.168.1.34")
-DEFAULT_PORT = int(os.environ.get("PORT_NUMBER", 45999))
+DEFAULT_HOST = os.environ.get("IP_ADDRESS", "zephyr.proxy.rlwy.net")
+DEFAULT_PORT = int(os.environ.get("PORT_NUMBER", 28364))
 
 # Modern Dark Theme Color Palette
 COLOR_BG = "#121214"            # Dark background
